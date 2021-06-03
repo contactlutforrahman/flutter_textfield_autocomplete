@@ -1,113 +1,272 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_textfield_autocomplete/flutter_textfield_autocomplete.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
+    return new MaterialApp(
+      title: 'Auto Complete TextField Demo',
+      theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: new MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<StatefulWidget> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  List<Widget> pages = [new FirstPage(), new SecondPage()];
+  int selectedIndex = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      bottomNavigationBar: new BottomNavigationBar(
+        items: [
+          new BottomNavigationBarItem(
+              icon: new Center(child: new Text("1")),
+              title: new Text("Simple Use")),
+          new BottomNavigationBarItem(
+              icon: new Center(child: new Text("2")),
+              title: new Text("Complex Use")),
+        ],
+        onTap: (index) => setState(() {
+          selectedIndex = index;
+        }),
+        currentIndex: selectedIndex,
+      ),
+      body: pages[selectedIndex],
+    );
+  }
+}
+
+class FirstPage extends StatefulWidget {
+  @override
+  _FirstPageState createState() => new _FirstPageState();
+}
+
+class _FirstPageState extends State<FirstPage> {
+  List<String> added = [];
+  String currentText = "";
+  GlobalKey<TextFieldAutoCompleteState<String>> key = new GlobalKey();
+
+  _FirstPageState() {
+    textField = SimpleTextFieldAutoComplete(
+      key: key,
+      decoration: new InputDecoration(errorText: "Beans"),
+      controller: TextEditingController(text: "Starting Text"),
+      suggestions: suggestions,
+      textChanged: (text) => currentText = text,
+      clearOnSubmit: true,
+      textSubmitted: (text) => setState(() {
+        if (text != "") {
+          added.add(text);
+        }
+      }),
+    );
+  }
+
+  List<String> suggestions = [
+    "Apple",
+    "Armidillo",
+    "Actual",
+    "Actuary",
+    "America",
+    "Argentina",
+    "Australia",
+    "Antarctica",
+    "Blueberry",
+    "Cheese",
+    "Danish",
+    "Eclair",
+    "Fudge",
+    "Granola",
+    "Hazelnut",
+    "Ice Cream",
+    "Jely",
+    "Kiwi Fruit",
+    "Lamb",
+    "Macadamia",
+    "Nachos",
+    "Oatmeal",
+    "Palm Oil",
+    "Quail",
+    "Rabbit",
+    "Salad",
+    "T-Bone Steak",
+    "Urid Dal",
+    "Vanilla",
+    "Waffles",
+    "Yam",
+    "Zest"
+  ];
+
+  SimpleTextFieldAutoComplete? textField;
+  bool showWhichErrorText = false;
+
+  @override
+  Widget build(BuildContext context) {
+    Column body = new Column(children: [
+      new ListTile(
+          title: textField,
+          trailing: new IconButton(
+              icon: new Icon(Icons.add),
+              onPressed: () {
+                textField!.triggerSubmitted();
+                showWhichErrorText = !showWhichErrorText;
+                textField!.updateDecoration(
+                    decoration: new InputDecoration(
+                        errorText: showWhichErrorText ? "Beans" : "Tomatoes"));
+              })),
+    ]);
+
+    body.children.addAll(added.map((item) {
+      return new ListTile(title: new Text(item));
+    }));
+
+    return new Scaffold(
+        appBar: new AppBar(
+            title: new Text('AutoComplete TextField Demo Simple'),
+            actions: [
+              new IconButton(
+                  icon: new Icon(Icons.edit),
+                  onPressed: () => showDialog(
+                      builder: (_) {
+                        String text = "";
+
+                        return new AlertDialog(
+                            title: new Text("Change Suggestions"),
+                            content: new TextField(
+                                onChanged: (newText) => text = newText),
+                            actions: [
+                              new FlatButton(
+                                  onPressed: () {
+                                    if (text != "") {
+                                      suggestions.add(text);
+                                      textField!.updateSuggestions(suggestions);
+                                    }
+                                    Navigator.pop(context);
+                                  },
+                                  child: new Text("Add")),
+                            ]);
+                      },
+                      context: context))
+            ]),
+        body: body);
+  }
+}
+
+class ArbitrarySuggestionType {
+  //For the mock data type we will use review (perhaps this could represent a restaurant);
+  num stars;
+  String name, imgURL;
+
+  ArbitrarySuggestionType(this.stars, this.name, this.imgURL);
+}
+
+class SecondPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _SecondPageState();
+}
+
+class _SecondPageState extends State<SecondPage> {
+  List<ArbitrarySuggestionType> suggestions = [
+    new ArbitrarySuggestionType(4.7, "Minamishima",
+        "https://media-cdn.tripadvisor.com/media/photo-p/0f/25/de/0c/photo1jpg.jpg"),
+    new ArbitrarySuggestionType(1.5, "The Meat & Wine Co Hawthorn East",
+        "https://media-cdn.tripadvisor.com/media/photo-s/12/ba/7d/4c/confit-cod-chorizo-red.jpg"),
+    new ArbitrarySuggestionType(3.4, "Florentino",
+        "https://media-cdn.tripadvisor.com/media/photo-s/12/fc/bb/11/from-the-street.jpg"),
+    new ArbitrarySuggestionType(
+        4.3,
+        "Syracuse Restaurant & Winebar Melbourne CBD",
+        "https://media-cdn.tripadvisor.com/media/photo-p/07/ad/76/b0/the-gyoza-had-a-nice.jpg"),
+    new ArbitrarySuggestionType(1.1, "Geppetto Trattoria",
+        "https://media-cdn.tripadvisor.com/media/photo-s/0c/85/3d/cb/photo1jpg.jpg"),
+    new ArbitrarySuggestionType(3.4, "Cumulus Inc.",
+        "https://media-cdn.tripadvisor.com/media/photo-s/0e/21/a0/be/photo0jpg.jpg"),
+    new ArbitrarySuggestionType(2.2, "Chin Chin",
+        "https://media-cdn.tripadvisor.com/media/photo-s/0e/83/ec/07/triple-beef-triple-bacon.jpg"),
+    new ArbitrarySuggestionType(5.0, "Anchovy",
+        "https://media-cdn.tripadvisor.com/media/photo-s/07/e7/f6/8e/daneli-s-kosher-deli.jpg"),
+    new ArbitrarySuggestionType(4.7, "Sezar Restaurant",
+        "https://media-cdn.tripadvisor.com/media/photo-s/04/b8/23/d1/nevsky-russian-restaurant.jpg"),
+    new ArbitrarySuggestionType(2.6, "Tipo 00",
+        "https://media-cdn.tripadvisor.com/media/photo-s/11/17/67/8c/front-seats.jpg"),
+    new ArbitrarySuggestionType(3.4, "Coda",
+        "https://media-cdn.tripadvisor.com/media/photo-s/0d/b1/6a/84/photo0jpg.jpg"),
+    new ArbitrarySuggestionType(1.1, "Pastuso",
+        "https://media-cdn.tripadvisor.com/media/photo-w/0a/d9/cf/52/photo4jpg.jpg"),
+    new ArbitrarySuggestionType(0.2, "San Telmo",
+        "https://media-cdn.tripadvisor.com/media/photo-s/0e/51/35/35/tempura-sashimi-combo.jpg"),
+    new ArbitrarySuggestionType(3.6, "Supernormal",
+        "https://media-cdn.tripadvisor.com/media/photo-s/0e/bc/63/69/mr-miyagi.jpg"),
+    new ArbitrarySuggestionType(4.4, "EZARD",
+        "https://media-cdn.tripadvisor.com/media/photo-p/09/f2/83/15/photo0jpg.jpg"),
+    new ArbitrarySuggestionType(2.1, "Maha",
+        "https://media-cdn.tripadvisor.com/media/photo-s/10/f8/9e/af/20171013-205729-largejpg.jpg"),
+    new ArbitrarySuggestionType(4.2, "MoVida",
+        "https://media-cdn.tripadvisor.com/media/photo-s/0e/1f/55/79/and-here-we-go.jpg")
+  ];
+
+  GlobalKey<TextFieldAutoCompleteState<ArbitrarySuggestionType>> key =
+  new GlobalKey<TextFieldAutoCompleteState<ArbitrarySuggestionType>>();
+
+  TextFieldAutoComplete<ArbitrarySuggestionType>? textField;
+
+  ArbitrarySuggestionType? selected;
+
+  _SecondPageState() {
+    textField = new TextFieldAutoComplete<ArbitrarySuggestionType>(
+      decoration: new InputDecoration(
+          hintText: "Search Resturant:", suffixIcon: new Icon(Icons.search)),
+      itemSubmitted: (item) => setState(() => selected = item),
+      key: key,
+      suggestions: suggestions,
+      itemBuilder: (context, suggestion) => new Padding(
+          child: new ListTile(
+              title: new Text(suggestion.name),
+              trailing: new Text("Stars: ${suggestion.stars}")),
+          padding: EdgeInsets.all(8.0)),
+      itemSorter: (a, b) => a.stars == b.stars ? 0 : a.stars > b.stars ? -1 : 1,
+      itemFilter: (suggestion, input) =>
+          suggestion.name.toLowerCase().startsWith(input.toLowerCase()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text('AutoComplete TextField Demo Complex'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      body: new Column(children: [
+        new Padding(
+            child: new Container(child: textField),
+            padding: EdgeInsets.all(16.0)),
+        new Padding(
+            padding: EdgeInsets.fromLTRB(0.0, 64.0, 0.0, 0.0),
+            child: new Card(
+                child: selected != null
+                    ? new Column(children: [
+                  new ListTile(
+                      title: new Text(selected!.name),
+                      trailing: new Text("Rating: ${selected!.stars}/5")),
+                  new Container(
+                      child: new Image(
+                          image: new NetworkImage(selected!.imgURL)),
+                      width: 400.0,
+                      height: 300.0)
+                ])
+                    : new Icon(Icons.cancel))),
+      ]),
     );
   }
 }
