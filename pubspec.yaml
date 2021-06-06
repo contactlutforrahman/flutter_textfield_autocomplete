@@ -1,5 +1,5 @@
 name: flutter_textfield_autocomplete
-description: A Flutter package for TextField Autocomplete.
+description: A Flutter package for TextField Autocomplete like google search. You will get autocomplete suggestion on writing something in the text field.
 version: 1.0.1
 homepage: https://github.com/contactlutforrahman/flutter_textfield_autocomplete
 
