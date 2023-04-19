@@ -313,37 +313,40 @@ class TextFieldAutoCompleteState<T> extends State<TextFieldAutoComplete> {
                   constraints: BoxConstraints(
                     maxHeight: 250, // or any other appropriate height
                   ),
-                  child: SingleChildScrollView(
-                    physics: ClampingScrollPhysics(),
-                    child: SizedBox(
-                        width: width,
-                        child: Card(
-                            child: Column(
-                              children: filteredSuggestions.map((suggestion) {
-                                return Row(children: [
-                                  Expanded(
-                                      child: InkWell(
-                                          child: itemBuilder!(context, suggestion),
-                                          onTap: () {
-                                            setState(() {
-                                              if (submitOnSuggestionTap) {
-                                                String newText = suggestion.toString();
-                                                textField!.controller!.text = newText;
-                                                textField!.focusNode!.unfocus();
-                                                itemSubmitted!(suggestion);
-                                                if (clearOnSubmit) {
-                                                  clear();
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    child: SingleChildScrollView(
+                      physics: ClampingScrollPhysics(),
+                      child: SizedBox(
+                          width: width,
+                          child: Card(
+                              child: Column(
+                                children: filteredSuggestions.map((suggestion) {
+                                  return Row(children: [
+                                    Expanded(
+                                        child: InkWell(
+                                            child: itemBuilder!(context, suggestion),
+                                            onTap: () {
+                                              setState(() {
+                                                if (submitOnSuggestionTap) {
+                                                  String newText = suggestion.toString();
+                                                  textField!.controller!.text = newText;
+                                                  textField!.focusNode!.unfocus();
+                                                  itemSubmitted!(suggestion);
+                                                  if (clearOnSubmit) {
+                                                    clear();
+                                                  }
+                                                } else {
+                                                  String newText = suggestion.toString();
+                                                  textField!.controller!.text = newText;
+                                                  textChanged!(newText);
                                                 }
-                                              } else {
-                                                String newText = suggestion.toString();
-                                                textField!.controller!.text = newText;
-                                                textChanged!(newText);
-                                              }
-                                            });
-                                          }))
-                                ]);
-                              }).toList(),
-                            ))),
+                                              });
+                                            }))
+                                  ]);
+                                }).toList(),
+                              ))),
+                    ),
                   ),
                 )));
       });
