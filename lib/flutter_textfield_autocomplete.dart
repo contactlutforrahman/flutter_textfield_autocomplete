@@ -92,7 +92,7 @@ class TextFieldAutoComplete<T> extends StatefulWidget {
   TextField? get textField => key.currentState!.textField;
 
   @override
-  State<StatefulWidget> createState() => new TextFieldAutoCompleteState<T>(
+  State<StatefulWidget> createState() => TextFieldAutoCompleteState<T>(
       suggestions,
       textChanged,
       textSubmitted,
@@ -164,14 +164,14 @@ class TextFieldAutoCompleteState<T> extends State<TextFieldAutoComplete> {
       this.textInputAction,
       this.controller,
       this.focusNode) {
-    textField = new TextField(
+    textField = TextField(
       inputFormatters: inputFormatters,
       textCapitalization: textCapitalization,
       decoration: decoration,
       style: style,
       keyboardType: keyboardType,
-      focusNode: focusNode ?? new FocusNode(),
-      controller: controller ?? new TextEditingController(),
+      focusNode: focusNode ?? FocusNode(),
+      controller: controller ?? TextEditingController(),
       textInputAction: textInputAction,
       onChanged: (newText) {
         currentText = newText;
@@ -238,14 +238,14 @@ class TextFieldAutoCompleteState<T> extends State<TextFieldAutoComplete> {
     }
 
     setState(() {
-      textField = new TextField(
+      textField = TextField(
         inputFormatters: this.inputFormatters,
         textCapitalization: this.textCapitalization,
         decoration: this.decoration,
         style: this.style,
         keyboardType: this.keyboardType,
-        focusNode: focusNode ?? new FocusNode(),
-        controller: controller ?? new TextEditingController(),
+        focusNode: focusNode ?? FocusNode(),
+        controller: controller ?? TextEditingController(),
         textInputAction: this.textInputAction,
         onChanged: (newText) {
           currentText = newText;
@@ -302,44 +302,52 @@ class TextFieldAutoCompleteState<T> extends State<TextFieldAutoComplete> {
       final Size textFieldSize = (context.findRenderObject() as RenderBox).size;
       final width = textFieldSize.width;
       final height = textFieldSize.height;
-      listSuggestionsEntry = new OverlayEntry(builder: (context) {
-        return new Positioned(
+      listSuggestionsEntry = OverlayEntry(builder: (context) {
+        return Positioned(
             width: width,
             child: CompositedTransformFollower(
                 link: _layerLink,
                 showWhenUnlinked: false,
                 offset: Offset(0.0, height),
-                child: new SizedBox(
-                    width: width,
-                    child: new Card(
-                        child: new Column(
-                          children: filteredSuggestions.map((suggestion) {
-                            return new Row(children: [
-                              new Expanded(
-                                  child: new InkWell(
-                                      child: itemBuilder!(context, suggestion),
-                                      onTap: () {
-                                        setState(() {
-                                          if (submitOnSuggestionTap) {
-                                            String newText = suggestion.toString();
-                                            textField!.controller!.text = newText;
-                                            textField!.focusNode!.unfocus();
-                                            itemSubmitted!(suggestion);
-                                            if (clearOnSubmit) {
-                                              clear();
-                                            }
-                                          } else {
-                                            String newText = suggestion.toString();
-                                            textField!.controller!.text = newText;
-                                            textChanged!(newText);
-                                          }
-                                        });
-                                      }))
-                            ]);
-                          }).toList(),
-                        )))));
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 250, // or any other appropriate height
+                  ),
+                  child: SingleChildScrollView(
+                    physics: ClampingScrollPhysics(),
+                    child: SizedBox(
+                        width: width,
+                        child: Card(
+                            child: Column(
+                              children: filteredSuggestions.map((suggestion) {
+                                return Row(children: [
+                                  Expanded(
+                                      child: InkWell(
+                                          child: itemBuilder!(context, suggestion),
+                                          onTap: () {
+                                            setState(() {
+                                              if (submitOnSuggestionTap) {
+                                                String newText = suggestion.toString();
+                                                textField!.controller!.text = newText;
+                                                textField!.focusNode!.unfocus();
+                                                itemSubmitted!(suggestion);
+                                                if (clearOnSubmit) {
+                                                  clear();
+                                                }
+                                              } else {
+                                                String newText = suggestion.toString();
+                                                textField!.controller!.text = newText;
+                                                textChanged!(newText);
+                                              }
+                                            });
+                                          }))
+                                ]);
+                              }).toList(),
+                            ))),
+                  ),
+                )));
       });
-      Overlay.of(context)!.insert(listSuggestionsEntry!);
+      Overlay.of(context).insert(listSuggestionsEntry!);
     }
 
     filteredSuggestions = getSuggestions(
@@ -425,13 +433,13 @@ class SimpleTextFieldAutoComplete extends TextFieldAutoComplete<String> {
       textCapitalization: textCapitalization);
 
   @override
-  State<StatefulWidget> createState() => new TextFieldAutoCompleteState<String>(
+  State<StatefulWidget> createState() => TextFieldAutoCompleteState<String>(
       suggestions,
       textChanged,
       textSubmitted,
       onFocusChanged,
       itemSubmitted, (context, item) {
-    return new Padding(padding: EdgeInsets.all(8.0), child: new Text(item));
+    return Padding(padding: EdgeInsets.all(8.0), child: Text(item));
   }, (a, b) {
     return a.compareTo(b);
   }, (item, query) {
