@@ -32,6 +32,7 @@ class TextFieldAutoComplete<T> extends StatefulWidget {
   final TextInputAction textInputAction;
   final TextCapitalization textCapitalization;
   final TextEditingController? controller;
+  final ScrollController? scrollController;
   final FocusNode? focusNode;
 
   TextFieldAutoComplete(
@@ -63,6 +64,7 @@ class TextFieldAutoComplete<T> extends StatefulWidget {
         this.textCapitalization: TextCapitalization.sentences,
         this.minLength = 1,
         this.controller,
+        this.scrollController,
         this.focusNode})
       : super(key: key);
 
@@ -314,6 +316,7 @@ class TextFieldAutoCompleteState<T> extends State<TextFieldAutoComplete> {
                     maxHeight: 250, // or any other appropriate height
                   ),
                   child: Scrollbar(
+                    controller: widget.scrollController,
                     thumbVisibility: true,
                     child: SingleChildScrollView(
                       physics: ClampingScrollPhysics(),
