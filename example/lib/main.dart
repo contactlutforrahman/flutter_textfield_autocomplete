@@ -63,6 +63,7 @@ class _FirstPageState extends State<FirstPage> {
       decoration: InputDecoration(errorText: "Beans"),
       controller: TextEditingController(text: "Starting Text"),
       suggestions: suggestions,
+      suggestionsAmount: suggestions.length,
       textChanged: (text) => currentText = text,
       clearOnSubmit: true,
       textSubmitted: (text) => setState(() {
@@ -74,6 +75,14 @@ class _FirstPageState extends State<FirstPage> {
   }
 
   List<String> suggestions = [
+    "Apple",
+    "Armidillo",
+    "Actual",
+    "Actuary",
+    "America",
+    "Argentina",
+    "Australia",
+    "Antarctica",
     "Apple",
     "Armidillo",
     "Actual",

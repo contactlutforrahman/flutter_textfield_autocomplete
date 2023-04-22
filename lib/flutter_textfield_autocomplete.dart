@@ -32,7 +32,6 @@ class TextFieldAutoComplete<T> extends StatefulWidget {
   final TextInputAction textInputAction;
   final TextCapitalization textCapitalization;
   final TextEditingController? controller;
-  final ScrollController? scrollController;
   final FocusNode? focusNode;
 
   TextFieldAutoComplete(
@@ -64,7 +63,6 @@ class TextFieldAutoComplete<T> extends StatefulWidget {
         this.textCapitalization: TextCapitalization.sentences,
         this.minLength = 1,
         this.controller,
-        this.scrollController,
         this.focusNode})
       : super(key: key);
 
@@ -137,6 +135,7 @@ class TextFieldAutoCompleteState<T> extends State<TextFieldAutoComplete> {
   FocusNode? focusNode;
 
   String currentText = "";
+  ScrollController scrollController = ScrollController();
 
   InputDecoration decoration;
   List<TextInputFormatter>? inputFormatters;
@@ -315,40 +314,45 @@ class TextFieldAutoCompleteState<T> extends State<TextFieldAutoComplete> {
                   constraints: BoxConstraints(
                     maxHeight: 250, // or any other appropriate height
                   ),
-                  child: Scrollbar(
-                    controller: widget.scrollController,
-                    thumbVisibility: true,
-                    child: SingleChildScrollView(
-                      physics: ClampingScrollPhysics(),
-                      child: SizedBox(
-                          width: width,
-                          child: Card(
-                              child: Column(
-                                children: filteredSuggestions.map((suggestion) {
-                                  return Row(children: [
-                                    Expanded(
-                                        child: InkWell(
-                                            child: itemBuilder!(context, suggestion),
-                                            onTap: () {
-                                              setState(() {
-                                                if (submitOnSuggestionTap) {
-                                                  String newText = suggestion.toString();
-                                                  textField!.controller!.text = newText;
-                                                  textField!.focusNode!.unfocus();
-                                                  itemSubmitted!(suggestion);
-                                                  if (clearOnSubmit) {
-                                                    clear();
+                  child: MediaQuery.removePadding(
+                    removeTop: true,
+                    context: context,
+                    child: Scrollbar(
+                      controller: scrollController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        physics: ClampingScrollPhysics(),
+                        child: SizedBox(
+                            width: width,
+                            child: Card(
+                                child: Column(
+                                  children: filteredSuggestions.map((suggestion) {
+                                    return Row(children: [
+                                      Expanded(
+                                          child: InkWell(
+                                              child: itemBuilder!(context, suggestion),
+                                              onTap: () {
+                                                setState(() {
+                                                  if (submitOnSuggestionTap) {
+                                                    String newText = suggestion.toString();
+                                                    textField!.controller!.text = newText;
+                                                    textField!.focusNode!.unfocus();
+                                                    itemSubmitted!(suggestion);
+                                                    if (clearOnSubmit) {
+                                                      clear();
+                                                    }
+                                                  } else {
+                                                    String newText = suggestion.toString();
+                                                    textField!.controller!.text = newText;
+                                                    textChanged!(newText);
                                                   }
-                                                } else {
-                                                  String newText = suggestion.toString();
-                                                  textField!.controller!.text = newText;
-                                                  textChanged!(newText);
-                                                }
-                                              });
-                                            }))
-                                  ]);
-                                }).toList(),
-                              ))),
+                                                });
+                                              }))
+                                    ]);
+                                  }).toList(),
+                                ))),
+                      ),
                     ),
                   ),
                 )));
